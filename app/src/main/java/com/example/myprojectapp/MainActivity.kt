@@ -4,20 +4,26 @@ import android.os.Bundle
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.myprojectapp.registration.RegCompose
-import com.example.myprojectapp.registration.RegErrors
+import com.example.myprojectapp.authentication.*
 import com.example.myprojectapp.ui.theme.MyProjectAppTheme
-import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
+
+//    @Inject
+//    lateinit var getVerificationCodeUseCase: GetVerificationCodeUseCase
+
+//    private lateinit var authInterface: AuthInterface
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,58 +38,89 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+//        getComponent().getMainActivityComponent().create(this)
     }
-
-//    fun getToken() {
-//
-//        auth.signInWithCustomToken("")
-//            .addOnCompleteListener(this) { task ->
-//                if (task.isSuccessful) {
-//                    // Sign in success, update UI with the signed-in user's information
-//                    Log.d(TAG, "signInWithCustomToken:success")
-//                    val user = auth.currentUser
-//                    updateUI(user)
-//                } else {
-//                    // If sign in fails, display a message to the user.
-//                    Log.w(TAG, "signInWithCustomToken:failure", task.exception)
-//                    Toast.makeText(
-//                        baseContext, "Authentication failed.",
-//                        Toast.LENGTH_SHORT
-//                    ).show()
-//                    updateUI(null)
-//                }
-//            }
-//
-//    }
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun StartUI(
         modifier: Modifier = Modifier,
-        regViewModel: RegViewModel = viewModel(),
+        authViewModel: AuthViewModel = viewModel(),
     ) {
-        val state by regViewModel.state.collectAsState()
+        val stateReg by authViewModel.stateReg.collectAsState()
+        val stateLogIn by authViewModel.stateLogIn.collectAsState()
+        val actionState = rememberSaveable { mutableStateOf(MainActivityStates.INITIAL) }
 
-        RegCompose().FullRegCompose(
-            onLogInAction = {
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = {
+                        if (actionState.value == MainActivityStates.ONE)
+                            Text("Registration", maxLines = 1)
+                        else if (actionState.value == MainActivityStates.TWO)
+                            Text("Log In", maxLines = 1)
+                        else {
+                            Text("Welcome", maxLines = 1)
+                        }
+                    },
+                    navigationIcon = {
+                        if (actionState.value != MainActivityStates.INITIAL)
+                            IconButton(onClick = {
+                                actionState.value = MainActivityStates.INITIAL
+                            }) {
+                                Icon(
+                                    imageVector = Icons.Filled.ArrowBack,
+                                    contentDescription = "Go back"
+                                )
+                            }
+                    },
+                )
             },
-            onRegAction = { email: String, password: String ->
-                regViewModel.regByEmail(email, password)
-            },
-            error = false,
+            content = { innerPadding ->
+
+                Spacer(modifier = modifier.height(innerPadding.calculateTopPadding()))
+
+                Column(
+                    modifier = modifier
+                        .fillMaxSize(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+
+                    MainActivityCompose().WriteMobileNumberCompose(
+                        width = 320.dp,
+                        onSendCode = {
+//                            authViewModel.getVerificationCode(GetVerificationCodeUseCase(authInterface), it)
+                        },
+                        isError = false,
+                    )
+
+//                    if (actionState.value == MainActivityStates.ONE)
+//                        RegCompose().FullRegCompose(
+//                            onRegAction = { email: String, password: String ->
+//                                regViewModel.regByEmail(email, password)
+//                            },
+//                            error = stateReg,
+//                        )
+//                    else if (actionState.value == MainActivityStates.TWO)
+//                        LogInCompose().LogIn(
+//                            onLogIn = { emailMobile: String, password: String ->
+//
+//                            },
+//                            errors = stateLogIn,
+//                        )
+//                    else {
+//                        WelcomeItems().MainCompose(
+//                            onReg = { actionState.value = MainActivityStates.ONE },
+//                            onLogIn = { actionState.value = MainActivityStates.TWO },
+//                            onGoogle = {
+//
+//                            }
+//                        )
+//                    }
+                }
+            }
         )
-
-        when (state) {
-            is RegErrors.NoError -> {
-            }
-            is RegErrors.RegNewAccountError -> {
-
-            }
-            is RegErrors.LogInAccountError -> {
-                (state as RegErrors.LogInAccountError).text
-            }
-        }
-
     }
 
     fun closeSoft() {

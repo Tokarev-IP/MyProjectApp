@@ -1,4 +1,4 @@
-package com.example.myprojectapp.registration
+package com.example.myprojectapp.authentication.reg
 
 import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
@@ -6,7 +6,6 @@ import com.google.firebase.auth.FirebaseAuth
 class RegByEmailRepository {
 
     private val auth = FirebaseAuth.getInstance()
-
     fun createNewAccount(
         email: String,
         password: String,
@@ -27,16 +26,16 @@ class RegByEmailRepository {
             }
     }
 
-//        fun signIn(
-//            email: String,
-//            password: String,
-//        ) {
-//            auth.signInWithEmailAndPassword(email, password)
-//                .addOnCompleteListener {
-//                    if (it.isSuccessful) {
-//                        auth.currentUser?.let {
-//                        }
-//                    }
-//                }
-//        }
+    fun signIn(
+        email: String,
+        password: String,
+    ) {
+        auth.signInWithEmailAndPassword(email, password)
+            .addOnCompleteListener {
+                if (it.isSuccessful) {
+                    auth.currentUser?.let {
+                    }
+                }
+            }
+    }
 }

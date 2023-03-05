@@ -1,4 +1,4 @@
-package com.example.myprojectapp.registration
+package com.example.myprojectapp.authentication.reg
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -26,8 +27,8 @@ class RegComposeItems {
         isError: Boolean,
         emailText: String,
         onEmail: (String) -> Unit,
+        errorText: String,
     ) {
-
         OutlinedTextField(
             value = emailText,
             singleLine = true,
@@ -40,13 +41,12 @@ class RegComposeItems {
                         Icon(Icons.Filled.Clear, contentDescription = "DeleteText")
                     }
             },
-            isError = isError,
             supportingText = {
-                if (isError) Text(text = "Incorrect email")
+                if (isError) Text(text = errorText, color = Color.Red)
             },
-            label = { Text(text = "E-mail") },
+            label = { Text(text = "e-mail") },
             onValueChange = {
-                onEmail(it)
+                onEmail(it.trim())
             })
     }
 
@@ -65,13 +65,12 @@ class RegComposeItems {
             singleLine = true,
             modifier = modifier
                 .width(320.dp),
-            isError = password.length in 1..7,
             supportingText = {
-                if (password.length < 8) Text(text = "Minimum 8 characters")
+                if (password.length < 8) Text(text = "Minimum 8 characters", color = Color.Red)
             },
             label = { Text(text = "Password") },
             onValueChange = {
-                onPassword(it)
+                onPassword(it.trim())
             },
             visualTransformation =
             if (passwordHidden.value) PasswordVisualTransformation() else VisualTransformation.None,
@@ -108,11 +107,12 @@ class RegComposeItems {
             singleLine = true,
             modifier = modifier
                 .width(320.dp),
-            isError = isSamePassword,
-            supportingText = { if (isSamePassword) Text(text = "The password isn't the same") },
+            supportingText = {
+                if (isSamePassword)
+                    Text(text = "The password isn't the same", color = Color.Red) },
             label = { Text(text = "Confirm password") },
             onValueChange = {
-                onPassword(it)
+                onPassword(it.trim())
             },
             visualTransformation =
             if (passwordHidden.value) PasswordVisualTransformation() else VisualTransformation.None,
